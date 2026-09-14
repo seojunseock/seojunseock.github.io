@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>우리 결혼 준비</title>
+<style>
+  :root {
+    --pink: #e8a0a8;
+    --pink-dark: #d17d87;
+    --bg: #fdf7f5;
+    --card: #ffffff;
+    --text: #3a2e2e;
+    --muted: #9a8a8a;
+    --border: #ecdcdc;
+    --groom: #7c9cc9;
+    --bride: #d17d87;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding-bottom: 40px;
+  }
+  header {
+    padding: 28px 16px 16px;
+    text-align: center;
+  }
+  header h1 {
+    margin: 0 0 4px;
+    font-size: 22px;
+  }
+  header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+  nav.tabs {
+    display: flex;
+    gap: 6px;
+    max-width: 640px;
+    margin: 16px auto 20px;
+    padding: 0 16px;
+  }
+  nav.tabs button {
+    flex: 1;
+    padding: 10px 4px;
+    border: none;
+    border-radius: 10px;
+    background: var(--card);
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+  }
+  nav.tabs button.active {
+    background: var(--pink);
+    color: #fff;
+    border-color: var(--pink);
+  }
+  section.panel { display: none; }
+  section.panel.active { display: block; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .summary-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .summary-box {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    text-align: center;
+  }
+  .summary-box .label { font-size: 12px; color: var(--muted); }
+  .summary-box .value { font-size: 18px; font-weight: 700; margin-top: 4px; }
+  .progress-bar {
+    height: 8px;
+    background: #f1e4e4;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--pink);
+    transition: width .2s ease;
+  }
+  .group-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--pink-dark);
+    margin: 20px 2px 8px;
+  }
+  .item-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  .item-row:last-child { border-bottom: none; }
+  .item-row input[type=checkbox] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--pink);
+    flex-shrink: 0;
+  }
+  .item-row .item-text {
+    flex: 1;
+    font-size: 14px;
+  }
+  .item-row .item-text.done {
+    text-decoration: line-through;
+    color: var(--muted);
+  }
+  .item-row .del-btn {
+    background: none;
+    border: none;
+    color: #c9b9b9;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 6px;
+  }
+  .add-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  input[type=text], input[type=number], input[type=tel], select {
+    font-size: 14px;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fffdfd;
+    color: var(--text);
+    width: 100%;
+  }
+  .add-row input { flex: 1; }
+  .btn {
+    background: var(--pink);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:active { opacity: .85; }
+  .btn.secondary {
+    background: #fff;
+    color: var(--pink-dark);
+    border: 1px solid var(--pink);
+  }
+  .role-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .role-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .role-head .role-name {
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .status-pill {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: #f7efef;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .status-pill[data-status="요청함"] { background: #fff3d6; color: #a97b16; border-color: #f0dca0; }
+  .status-pill[data-status="수락함"] { background: #dff3e6; color: #2e8b57; border-color: #b9e3c8; }
+  .role-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .role-fields textarea {
+    grid-column: 1 / -1;
+    font-size: 13px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    resize: vertical;
+    min-height: 32px;
+    font-family: inherit;
+  }
+  table.gift-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.gift-table th {
+    text-align: left;
+    font-size: 11px;
+    color: var(--muted);
+    padding: 6px 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  table.gift-table td {
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  table.gift-table td.amount { text-align: right; white-space: nowrap; }
+  .side-tag {
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .side-tag.groom { background: var(--groom); }
+  .side-tag.bride { background: var(--bride); }
+  .side-tag.both { background: #a89bb0; }
+  .gift-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .gift-form .full { grid-column: 1 / -1; }
+  .del-x {
+    background: none;
+    border: none;
+    color: #c9b9b9;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .footer-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 24px;
+  }
+  .footer-actions button {
+    font-size: 12px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .empty-hint {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 20px 0;
+  }
+  .note {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 20px;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>💍 우리 결혼 준비</h1>
+  <p>체크리스트 · 역할 배정 · 축의금 기록</p>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="checklist">체크리스트</button>
+  <button class="tab-btn" data-tab="roles">역할배정</button>
+  <button class="tab-btn" data-tab="gifts">축의금</button>
+</nav>
+
+<div class="container">
+
+  <!-- CHECKLIST -->
+  <section id="checklist" class="panel active">
+    <div class="card">
+      <div class="summary-row" style="margin-bottom:0;">
+        <div class="summary-box" style="flex:2; text-align:left;">
+          <div class="label">진행률</div>
+          <div class="value" id="checklist-progress-text">0 / 0</div>
+          <div class="progress-bar"><div class="progress-fill" id="checklist-progress-fill" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+    <div id="checklist-groups"></div>
+    <div class="card">
+      <div class="add-row">
+        <input type="text" id="new-checklist-text" placeholder="할 일 추가 (예: 예단 준비)">
+        <button class="btn" id="add-checklist-btn">추가</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROLES -->
+  <section id="roles" class="panel">
+    <div id="roles-list"></div>
+    <div class="card">
+      <div class="add-row">
+        <input type="text" id="new-role-name" placeholder="역할 추가 (예: 축가, 부케 받이)">
+        <button class="btn" id="add-role-btn">추가</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GIFTS -->
+  <section id="gifts" class="panel">
+    <div class="summary-row">
+      <div class="summary-box">
+        <div class="label">총 합계</div>
+        <div class="value" id="gift-total">0원</div>
+      </div>
+      <div class="summary-box">
+        <div class="label">인원</div>
+        <div class="value" id="gift-count">0명</div>
+      </div>
+    </div>
+    <div class="summary-row">
+      <div class="summary-box">
+        <div class="label" style="color:var(--groom)">신랑측</div>
+        <div class="value" id="gift-groom-total">0원</div>
+      </div>
+      <div class="summary-box">
+        <div class="label" style="color:var(--bride)">신부측</div>
+        <div class="value" id="gift-bride-total">0원</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="gift-form">
+        <input type="text" id="gift-name" placeholder="이름">
+        <select id="gift-side">
+          <option value="groom">신랑측</option>
+          <option value="bride">신부측</option>
+          <option value="both">공통</option>
+        </select>
+        <input type="number" id="gift-amount" placeholder="금액 (원)">
+        <input type="text" id="gift-memo" placeholder="메모 (관계 등, 선택)">
+        <button class="btn full" id="add-gift-btn">축의금 기록 추가</button>
+      </div>
+    </div>
+
+    <div class="card" id="gift-table-card">
+      <table class="gift-table">
+        <thead>
+          <tr><th>이름</th><th>구분</th><th>메모</th><th>금액</th><th></th></tr>
+        </thead>
+        <tbody id="gift-table-body"></tbody>
+      </table>
+      <div class="empty-hint" id="gift-empty-hint">아직 기록된 축의금이 없어요.</div>
+    </div>
+
+    <div class="footer-actions">
+      <button id="export-csv-btn">CSV로 내보내기</button>
+    </div>
+  </section>
+
+  <div class="footer-actions">
+    <button id="export-json-btn">전체 백업(JSON) 내보내기</button>
+    <button id="import-json-btn">백업 불러오기</button>
+    <input type="file" id="import-file-input" accept="application/json" style="display:none;">
+  </div>
+  <p class="note">모든 데이터는 이 브라우저(기기)에만 저장돼요.<br>다른 기기에서도 보려면 백업 파일을 내보내서 옮겨주세요.</p>
+</div>
+
+<script>
+(function() {
+  const STORAGE_KEY = 'wedding-app-data-v1';
+
+  const DEFAULT_CHECKLIST = [
+    { group: '초반 준비', items: [
+      '예식장 계약', '웨딩플래너/스드메(스튜디오·드레스·메이크업) 결정',
+      '예산 계획 세우기', '결혼 날짜 확정', '상견례 진행'
+    ]},
+    { group: '중반 준비', items: [
+      '청첩장 디자인 및 제작', '신혼여행 예약', '신혼집 준비',
+      '예물/예단 준비', '결혼반지 맞추기', '하객 명단 정리'
+    ]},
+    { group: '막바지 준비', items: [
+      '사회자/주례 섭외', '축가 부를 사람 섭외', '부케 받을 사람 정하기',
+      '청첩장 발송', '축의금 봉투/방명록 준비', '답례품 준비',
+      '스냅/영상 업체 확정', '웨딩카 예약'
+    ]},
+    { group: 'D-day', items: [
+      '리허설 메이크업', '예식 순서 최종 확인', '축의금 관리자 정하기',
+      '폐백 준비'
+    ]}
+  ];
+
+  const DEFAULT_ROLES = ['사회자', '주례', '축가', '부케 받이', '스냅 촬영', '축의금 관리'];
+
+  function loadData() {
+    let raw;
+    try { raw = JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch (e) { raw = null; }
+    if (!raw) {
+      raw = {
+        checklist: DEFAULT_CHECKLIST.map(g => ({
+          group: g.group,
+          items: g.items.map(text => ({ id: uid(), text, done: false }))
+        })),
+        roles: DEFAULT_ROLES.map(name => ({ id: uid(), name, person: '', contact: '', status: '미정', memo: '' })),
+        gifts: []
+      };
+      save(raw);
+    }
+    if (!raw.checklist) raw.checklist = [];
+    if (!raw.roles) raw.roles = [];
+    if (!raw.gifts) raw.gifts = [];
+    return raw;
+  }
+
+  function uid() { return Math.random().toString(36).slice(2, 10); }
+
+  let data = loadData();
+
+  function save(d) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(d || data));
+  }
+
+  // ---------- Tabs ----------
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ---------- Checklist ----------
+  function renderChecklist() {
+    const container = document.getElementById('checklist-groups');
+    container.innerHTML = '';
+    let total = 0, done = 0;
+
+    data.checklist.forEach((group, gi) => {
+      const groupEl = document.createElement('div');
+      groupEl.className = 'card';
+      const title = document.createElement('div');
+      title.className = 'group-title';
+      title.style.marginTop = '0';
+      title.textContent = group.group;
+      groupEl.appendChild(title);
+
+      group.items.forEach(item => {
+        total++;
+        if (item.done) done++;
+        const row = document.createElement('div');
+        row.className = 'item-row';
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = item.done;
+        cb.addEventListener('change', () => {
+          item.done = cb.checked;
+          save();
+          renderChecklist();
+        });
+
+        const text = document.createElement('span');
+        text.className = 'item-text' + (item.done ? ' done' : '');
+        text.textContent = item.text;
+
+        const del = document.createElement('button');
+        del.className = 'del-btn';
+        del.textContent = '✕';
+        del.addEventListener('click', () => {
+          group.items = group.items.filter(i => i.id !== item.id);
+          save();
+          renderChecklist();
+        });
+
+        row.appendChild(cb);
+        row.appendChild(text);
+        row.appendChild(del);
+        groupEl.appendChild(row);
+      });
+
+      container.appendChild(groupEl);
+    });
+
+    document.getElementById('checklist-progress-text').textContent = `${done} / ${total}`;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    document.getElementById('checklist-progress-fill').style.width = pct + '%';
+  }
+
+  document.getElementById('add-checklist-btn').addEventListener('click', () => {
+    const input = document.getElementById('new-checklist-text');
+    const text = input.value.trim();
+    if (!text) return;
+    if (!data.checklist.length || data.checklist[data.checklist.length - 1].group !== '직접 추가') {
+      data.checklist.push({ group: '직접 추가', items: [] });
+    }
+    data.checklist[data.checklist.length - 1].items.push({ id: uid(), text, done: false });
+    input.value = '';
+    save();
+    renderChecklist();
+  });
+
+  // ---------- Roles ----------
+  function renderRoles() {
+    const container = document.getElementById('roles-list');
+    container.innerHTML = '';
+    if (!data.roles.length) {
+      container.innerHTML = '<div class="empty-hint">등록된 역할이 없어요.</div>';
+      return;
+    }
+    const statuses = ['미정', '요청함', '수락함'];
+
+    data.roles.forEach(role => {
+      const card = document.createElement('div');
+      card.className = 'role-card';
+
+      const head = document.createElement('div');
+      head.className = 'role-head';
+
+      const nameEl = document.createElement('span');
+      nameEl.className = 'role-name';
+      nameEl.textContent = role.name;
+
+      const right = document.createElement('div');
+      right.style.display = 'flex';
+      right.style.gap = '8px';
+      right.style.alignItems = 'center';
+
+      const pill = document.createElement('span');
+      pill.className = 'status-pill';
+      pill.textContent = role.status;
+      pill.dataset.status = role.status;
+      pill.addEventListener('click', () => {
+        const idx = statuses.indexOf(role.status);
+        role.status = statuses[(idx + 1) % statuses.length];
+        save();
+        renderRoles();
+      });
+
+      const del = document.createElement('button');
+      del.className = 'del-x';
+      del.textContent = '✕';
+      del.addEventListener('click', () => {
+        data.roles = data.roles.filter(r => r.id !== role.id);
+        save();
+        renderRoles();
+      });
+
+      right.appendChild(pill);
+      right.appendChild(del);
+      head.appendChild(nameEl);
+      head.appendChild(right);
+
+      const fields = document.createElement('div');
+      fields.className = 'role-fields';
+
+      const personInput = document.createElement('input');
+      personInput.type = 'text';
+      personInput.placeholder = '담당자 이름';
+      personInput.value = role.person;
+      personInput.addEventListener('input', () => { role.person = personInput.value; save(); });
+
+      const contactInput = document.createElement('input');
+      contactInput.type = 'tel';
+      contactInput.placeholder = '연락처';
+      contactInput.value = role.contact;
+      contactInput.addEventListener('input', () => { role.contact = contactInput.value; save(); });
+
+      const memoInput = document.createElement('textarea');
+      memoInput.placeholder = '메모';
+      memoInput.value = role.memo;
+      memoInput.addEventListener('input', () => { role.memo = memoInput.value; save(); });
+
+      fields.appendChild(personInput);
+      fields.appendChild(contactInput);
+      fields.appendChild(memoInput);
+
+      card.appendChild(head);
+      card.appendChild(fields);
+      container.appendChild(card);
+    });
+  }
+
+  document.getElementById('add-role-btn').addEventListener('click', () => {
+    const input = document.getElementById('new-role-name');
+    const name = input.value.trim();
+    if (!name) return;
+    data.roles.push({ id: uid(), name, person: '', contact: '', status: '미정', memo: '' });
+    input.value = '';
+    save();
+    renderRoles();
+  });
+
+  // ---------- Gifts ----------
+  function formatWon(n) {
+    return n.toLocaleString('ko-KR') + '원';
+  }
+
+  const sideLabel = { groom: '신랑측', bride: '신부측', both: '공통' };
+
+  function renderGifts() {
+    const body = document.getElementById('gift-table-body');
+    body.innerHTML = '';
+    let total = 0, groomTotal = 0, brideTotal = 0;
+
+    data.gifts.forEach(g => {
+      const amt = Number(g.amount) || 0;
+      total += amt;
+      if (g.side === 'groom') groomTotal += amt;
+      else if (g.side === 'bride') brideTotal += amt;
+      else { groomTotal += amt / 2; brideTotal += amt / 2; }
+
+      const tr = document.createElement('tr');
+
+      const tdName = document.createElement('td');
+      tdName.textContent = g.name;
+
+      const tdSide = document.createElement('td');
+      const tag = document.createElement('span');
+      tag.className = 'side-tag ' + g.side;
+      tag.textContent = sideLabel[g.side];
+      tdSide.appendChild(tag);
+
+      const tdMemo = document.createElement('td');
+      tdMemo.textContent = g.memo || '';
+
+      const tdAmount = document.createElement('td');
+      tdAmount.className = 'amount';
+      tdAmount.textContent = formatWon(amt);
+
+      const tdDel = document.createElement('td');
+      const del = document.createElement('button');
+      del.className = 'del-x';
+      del.textContent = '✕';
+      del.addEventListener('click', () => {
+        data.gifts = data.gifts.filter(x => x.id !== g.id);
+        save();
+        renderGifts();
+      });
+      tdDel.appendChild(del);
+
+      tr.appendChild(tdName);
+      tr.appendChild(tdSide);
+      tr.appendChild(tdMemo);
+      tr.appendChild(tdAmount);
+      tr.appendChild(tdDel);
+      body.appendChild(tr);
+    });
+
+    document.getElementById('gift-total').textContent = formatWon(total);
+    document.getElementById('gift-count').textContent = data.gifts.length + '명';
+    document.getElementById('gift-groom-total').textContent = formatWon(Math.round(groomTotal));
+    document.getElementById('gift-bride-total').textContent = formatWon(Math.round(brideTotal));
+    document.getElementById('gift-empty-hint').style.display = data.gifts.length ? 'none' : 'block';
+  }
+
+  document.getElementById('add-gift-btn').addEventListener('click', () => {
+    const nameInput = document.getElementById('gift-name');
+    const sideInput = document.getElementById('gift-side');
+    const amountInput = document.getElementById('gift-amount');
+    const memoInput = document.getElementById('gift-memo');
+
+    const name = nameInput.value.trim();
+    const amount = Number(amountInput.value);
+    if (!name || !amount) {
+      alert('이름과 금액을 입력해주세요.');
+      return;
+    }
+
+    data.gifts.unshift({
+      id: uid(),
+      name,
+      side: sideInput.value,
+      amount,
+      memo: memoInput.value.trim(),
+      date: new Date().toISOString()
+    });
+
+    nameInput.value = '';
+    amountInput.value = '';
+    memoInput.value = '';
+    save();
+    renderGifts();
+  });
+
+  document.getElementById('export-csv-btn').addEventListener('click', () => {
+    let csv = '﻿이름,구분,메모,금액,날짜\n';
+    data.gifts.forEach(g => {
+      const row = [g.name, sideLabel[g.side], g.memo || '', g.amount, g.date.slice(0, 10)]
+        .map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
+      csv += row + '\n';
+    });
+    downloadFile(csv, '축의금_기록.csv', 'text/csv;charset=utf-8');
+  });
+
+  // ---------- Backup ----------
+  function downloadFile(content, filename, mime) {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  document.getElementById('export-json-btn').addEventListener('click', () => {
+    downloadFile(JSON.stringify(data, null, 2), '결혼준비_백업.json', 'application/json');
+  });
+
+  document.getElementById('import-json-btn').addEventListener('click', () => {
+    document.getElementById('import-file-input').click();
+  });
+
+  document.getElementById('import-file-input').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result);
+        if (!parsed.checklist || !parsed.roles || !parsed.gifts) throw new Error('invalid');
+        data = parsed;
+        save();
+        renderAll();
+        alert('백업을 불러왔어요.');
+      } catch (err) {
+        alert('올바른 백업 파일이 아니에요.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+
+  function renderAll() {
+    renderChecklist();
+    renderRoles();
+    renderGifts();
+  }
+
+  renderAll();
+})();
+</script>
+
+</body>
+</html>
